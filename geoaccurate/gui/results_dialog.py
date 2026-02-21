@@ -246,9 +246,8 @@ def _export_confusion_matrix_xlsx(result: ConfusionMatrixResult, path: str):
     fill_metric = PatternFill("solid", fgColor="FFF2CC")
     fill_kappa = PatternFill("solid", fgColor="FCE4D6")
 
-    # --- Column layout ---
+    # Column layout:
     # Col 1: ClassValue | Cols 2..k+1: classes | Col k+2: Total | Col k+3: P_Accuracy | (Col k+4: Kappa)
-    n_data_cols = k + 2 + (1 if has_kappa else 0)  # classes + Total + PA + (Kappa)
 
     # Header row (row 1)
     headers = ["ClassValue"] + labels + ["Total", "P_Accuracy"]

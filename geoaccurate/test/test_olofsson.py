@@ -112,13 +112,15 @@ class TestOlofsson:
         with pytest.raises(ValueError, match="Missing mapped area"):
             compute(matrix, area, labels)
 
-    def test_zero_column_raises(self):
-        """Class with 0 samples should raise an error."""
+    def test_zero_column_graceful(self):
+        """Class with 0 samples should produce NaN UA, not crash."""
         matrix = np.array([[10, 0], [5, 0]], dtype=np.int64)
         labels = (0, 1)
         area = {0: 1000.0, 1: 500.0}
-        with pytest.raises(ValueError, match="0 samples"):
-            compute(matrix, area, labels)
+        result = compute(matrix, area, labels)
+        assert np.isnan(result.users_accuracy_weighted[1])
+        # Function should complete without raising
+        assert result.overall_accuracy_weighted >= 0
 
     def test_shape_mismatch_raises(self):
         matrix = np.array([[10, 2], [3, 15]], dtype=np.int64)

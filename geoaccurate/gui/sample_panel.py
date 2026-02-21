@@ -1036,9 +1036,7 @@ class SamplePanel(QWidget):
     def _update_aoi_generated_counts(self, selected_points):
         """Update the 'Generated' column in the AOI table."""
         self.tbl_aois.blockSignals(True)
-        offset = 0
         for i, geom in enumerate(self._aoi_geometries):
-            desired = self._aoi_desired_n[i]
             # Count how many of the selected points fall in this shape
             count = sum(
                 1 for p in selected_points
