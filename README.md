@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/QGIS-3.34%2B-3BAA35?style=for-the-badge&logo=qgis&logoColor=white" alt="QGIS">
   <img src="https://img.shields.io/badge/License-GPLv2%2B-blue?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Tests-86%20passing-success?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Coverage-92%25-brightgreen?style=for-the-badge" alt="Coverage">
 </p>
 
 <p align="center">
@@ -38,11 +39,15 @@
 - [Screenshots](#screenshots)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Validation Philosophy](#validation-philosophy)
 - [Design Philosophy](#design-philosophy)
+- [Technical Highlights](#technical-highlights)
 - [Who Should Use GeoAccuRate?](#who-should-use-geoaccurate)
 - [Architecture](#architecture)
 - [Testing](#testing)
+- [Reproducibility & Scientific Integrity](#reproducibility--scientific-integrity)
 - [Roadmap](#roadmap)
+- [Known Limitations](#known-limitations)
 - [FAQ](#faq)
 - [References](#references)
 - [Citation](#citation)
@@ -50,6 +55,8 @@
 - [Acknowledgements](#acknowledgements)
 - [Contributors](#contributors)
 - [Star History](#star-history)
+- [Versioning](#versioning)
+- [Vision](#vision)
 - [License](#license)
 
 ---
@@ -277,6 +284,26 @@ sequenceDiagram
 
 <p align="right"><a href="#table-of-contents">Back to top</a></p>
 
+## Validation Philosophy
+
+Accuracy assessment is not a checkbox — it is a **statistical inference problem**.
+
+GeoAccuRate treats map validation as:
+
+| Aspect | Approach |
+|--------|----------|
+| **Estimation** | Area-weighted inference correcting for sampling bias |
+| **Uncertainty** | Confidence intervals on every metric, not just point estimates |
+| **Error decomposition** | Separating quantity errors from allocation errors |
+| **Transparency** | ISO 19157 mapping, provenance tracking, explicit assumptions |
+
+The goal is not just a number, but **defensible evidence** that a classification meets its intended purpose.
+
+> *"A map without an accuracy assessment is just a picture."*
+> — Adapted from Congalton & Green (2019)
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Design Philosophy
 
 GeoAccuRate is built on three principles:
@@ -303,6 +330,21 @@ mindmap
 3. **Opinionated scientific defaults** — no silent resampling, CIs clamped to logical bounds, warnings for insufficient sample sizes
 
 The plugin avoids common pitfalls in accuracy assessment by enforcing projected CRS for area calculations, flagging under-sampled classes, and generating methods text with proper citations ready for journal submission.
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Technical Highlights
+
+| Highlight | Detail |
+|-----------|--------|
+| **Clean architecture** | Domain layer isolated from QGIS API — pure Python + NumPy |
+| **4-layer separation** | GUI / Core / Domain / Reporting with strict dependency direction |
+| **92% test coverage** | 86 unit tests on the statistical core |
+| **Background execution** | Long-running tasks via `QgsTask` — UI never freezes |
+| **Zero QGIS imports in math** | `domain/` is independently testable with plain `pytest` |
+| **Multi-version CI** | Tested against QGIS LTR and Stable on every push |
+| **Thread-safe charts** | Matplotlib `Agg` backend for headless rendering |
+| **Provenance tracking** | Every report includes a JSON sidecar with full run metadata |
 
 <p align="right"><a href="#table-of-contents">Back to top</a></p>
 
@@ -390,9 +432,40 @@ pytest geoaccurate/test/ -k "not integration" -v
 
 # Full tests (requires QGIS environment)
 pytest geoaccurate/test/ -v
+
+# With coverage report
+pytest geoaccurate/test/ -k "not integration" --cov=geoaccurate/domain --cov-report=term-missing
 ```
 
-86 unit tests covering confusion matrix, normalization, Pontius, Olofsson, Wilson CI, Kappa, sampling, and edge cases.
+86 unit tests covering confusion matrix, normalization, Pontius, Olofsson, Wilson CI, Kappa, sampling, and edge cases. 92% coverage on the statistical core.
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Reproducibility & Scientific Integrity
+
+GeoAccuRate enforces reproducibility at every step:
+
+```mermaid
+flowchart TD
+    A["Deterministic\nRandom Seeds"] --> E["Identical Results"]
+    B["Provenance\nJSON Sidecar"] --> E
+    C["No Silent\nResampling"] --> E
+    D["Explicit Nodata\nExclusions"] --> E
+    E --> F["Reproducible\nScience"]
+
+    style F fill:#55A868,color:#fff,stroke:#333
+```
+
+| Guarantee | How |
+|-----------|-----|
+| **Deterministic sampling** | Random seeds stored and reported — same seed = same samples |
+| **Full provenance** | Every PDF report has a JSON sidecar recording inputs, parameters, software version, and timestamp |
+| **No silent resampling** | Raster values are read at native resolution — no hidden interpolation |
+| **Explicit exclusions** | Nodata pixels are counted and reported, never silently dropped |
+| **Bounded confidence intervals** | CIs clamped to $[0, 1]$ for proportions and $[0, \infty)$ for areas — no impossible values |
+| **Transparent methods** | Auto-generated methods text with citations you can paste into your manuscript |
+
+All results are reproducible given the same input data and parameters.
 
 <p align="right"><a href="#table-of-contents">Back to top</a></p>
 
@@ -405,8 +478,24 @@ pytest geoaccurate/test/ -v
 | :bulb: | Multi-classifier comparison dashboard |
 | :bulb: | Batch processing mode for multiple classifications |
 | :bulb: | Automated LaTeX/Word export of methods text |
+| :bulb: | Zenodo DOI integration for each release |
 
 :white_check_mark: = Done &nbsp; :construction: = Planned &nbsp; :bulb: = Under consideration
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Known Limitations
+
+We believe transparency about limitations builds trust. Here are the current boundaries:
+
+| Limitation | Context |
+|------------|---------|
+| Assumes **independent reference samples** | Spatial autocorrelation between nearby reference points is not modeled |
+| **No change detection** validation yet | Multi-date confusion matrices are on the roadmap |
+| Area-weighted estimation requires **projected CRS** | Geographic (lat/lon) coordinates produce meaningless area values |
+| **Integer class values** only | Continuous raster validation (regression metrics) is planned |
+| PDF reports require **ReportLab** | Not bundled with QGIS — requires one-time `pip install` |
+| **Single raster** per assessment | Multi-classifier comparison is a planned feature |
 
 <p align="right"><a href="#table-of-contents">Back to top</a></p>
 
@@ -465,6 +554,7 @@ See the [Citation](#citation) section below. GeoAccuRate also auto-generates a m
 ## References
 
 - Agresti, A. and Coull, B.A. (1998). Approximate is better than "exact" for interval estimation of binomial proportions. *The American Statistician*, 52(2), 119-126. [doi:10.1080/00031305.1998.10480550](https://doi.org/10.1080/00031305.1998.10480550)
+- Cochran, W.G. (1977). *Sampling Techniques*, 3rd ed. John Wiley & Sons.
 - Congalton, R.G. and Green, K. (2019). *Assessing the Accuracy of Remotely Sensed Data*, 3rd ed. CRC Press.
 - Olofsson, P. et al. (2014). Good practices for estimating area and assessing accuracy of land use change. *Remote Sensing of Environment*, 148, 42-57. [doi:10.1016/j.rse.2014.02.015](https://doi.org/10.1016/j.rse.2014.02.015)
 - Pontius, R.G. Jr. and Millones, M. (2011). Death to Kappa. *International Journal of Remote Sensing*, 32(15), 4407-4429. [doi:10.1080/01431161.2011.552923](https://doi.org/10.1080/01431161.2011.552923)
@@ -527,8 +617,8 @@ GeoAccuRate stands on the shoulders of foundational work in accuracy assessment:
 - **Pontius, R.G. Jr.** and **Millones, M.** — for the Quantity/Allocation Disagreement framework that replaces Kappa
 - **Olofsson, P.**, **Foody, G.M.**, **Herold, M.**, **Stehman, S.V.**, **Woodcock, C.E.**, and **Wulder, M.A.** — for the definitive good practices guide on area estimation and accuracy assessment
 - **Congalton, R.G.** and **Green, K.** — for the foundational textbook on remote sensing accuracy assessment
-- **Wilson, E.B.** — for the confidence interval method that bears his name
 - **Cochran, W.G.** — for the sampling theory underlying the sample size calculator
+- **Wilson, E.B.** — for the confidence interval method that bears his name
 
 Built with the amazing open-source ecosystem: [QGIS](https://qgis.org), [NumPy](https://numpy.org), [SciPy](https://scipy.org), [Matplotlib](https://matplotlib.org), [ReportLab](https://www.reportlab.com), and [Qt](https://www.qt.io).
 
@@ -551,6 +641,34 @@ Built with the amazing open-source ecosystem: [QGIS](https://qgis.org), [NumPy](
     <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Osman-Geomatics93/GeoAccuRate&type=Date" width="600" />
   </picture>
 </a>
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Versioning
+
+GeoAccuRate follows [Semantic Versioning](https://semver.org/):
+
+| Increment | Meaning | Example |
+|-----------|---------|---------|
+| **MAJOR** | Breaking API or workflow changes | 2.0.0 |
+| **MINOR** | New statistical modules or features | 1.2.0 |
+| **PATCH** | Bug fixes, documentation, CI improvements | 1.1.1 |
+
+See the [CHANGELOG](CHANGELOG.md) for a full release history.
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Vision
+
+GeoAccuRate aims to become the **standard open-source framework** for scientifically defensible accuracy assessment in QGIS.
+
+We believe that:
+- Every classified map deserves a proper accuracy assessment
+- Statistical rigor should be accessible, not locked behind proprietary software
+- Reproducibility is a requirement, not a luxury
+- The gap between research best practices and practitioner tools should not exist
+
+If you believe map validation deserves better tools — **join the effort**.
 
 <p align="right"><a href="#table-of-contents">Back to top</a></p>
 
