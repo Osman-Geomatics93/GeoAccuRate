@@ -198,13 +198,34 @@ This decomposition is actionable: if QD is high, your classifier is biased; if A
 
 ## Screenshots
 
+<h3 align="center">Confusion Matrix & Row-Normalized Table</h3>
 <p align="center">
-  <img src="docs/images/accuracy_tab.png" width="300" alt="Accuracy Tab">
-  &nbsp;&nbsp;
-  <img src="docs/images/report_preview.png" width="400" alt="PDF Report">
+  <img src="docs/images/confusion_matrix_tables.png" width="700" alt="Confusion Matrix — counts and row-normalized percentages">
 </p>
 
-> Screenshots coming soon. Run the plugin to see it in action!
+<h3 align="center">Per-Class Metrics with Wilson Confidence Intervals</h3>
+<p align="center">
+  <img src="docs/images/per_class_metrics.png" width="700" alt="Per-Class Metrics — PA, UA, F1 with Wilson CIs">
+</p>
+
+<h3 align="center">Heatmap & Accuracy Bar Chart</h3>
+<p align="center">
+  <img src="docs/images/charts.png" width="700" alt="Confusion matrix heatmap and Producer's/User's Accuracy bar chart">
+</p>
+
+<details>
+<summary><b>What am I looking at?</b></summary>
+<br>
+
+- **Confusion Matrix (Table A)** — Raw sample counts between reference and classified labels, with row and column totals
+- **Row-Normalized Matrix (Table B)** — Each row sums to 100%, showing the proportion of reference samples classified into each class
+- **Per-Class Metrics** — Producer's Accuracy, User's Accuracy, and F1 score with Wilson confidence intervals for each class
+- **Heatmap** — Visual representation of the confusion matrix; darker cells = higher counts
+- **Bar Chart** — Grouped bars comparing PA and UA per class, with error bars showing confidence intervals and an OA reference line
+
+All outputs are generated automatically and embedded in the PDF report.
+
+</details>
 
 <p align="right"><a href="#table-of-contents">Back to top</a></p>
 
