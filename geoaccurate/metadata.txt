@@ -12,7 +12,7 @@ about=GeoAccuRate provides statistically rigorous accuracy assessment for land c
     notes, ISO 19157 quality element mapping, and auto-generated methods text with
     citations. Designed for researchers, students, and agencies requiring reproducible
     and defensible accuracy assessment without leaving QGIS.
-version=1.2.0
+version=1.2.1
 author=Osman Ibrahim
 email=449809@ogr.ktu.edu.tr
 tracker=https://github.com/Osman-Geomatics93/GeoAccuRate/issues
