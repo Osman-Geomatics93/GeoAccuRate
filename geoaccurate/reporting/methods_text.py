@@ -120,5 +120,7 @@ def generate_references() -> str:
         "birth of quantity disagreement and allocation disagreement "
         "for accuracy assessment. International Journal of Remote "
         "Sensing, 32(15), 4407-4429. "
-        "https://doi.org/10.1080/01431161.2011.552923"
+        "https://doi.org/10.1080/01431161.2011.552923\n\n"
+        "ISO (2013). ISO 19157:2013 Geographic information \u2014 "
+        "Data quality. International Organization for Standardization."
     )

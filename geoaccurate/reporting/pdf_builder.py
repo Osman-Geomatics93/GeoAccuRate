@@ -14,6 +14,7 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
+from ..domain.confusion_matrix import normalize_confusion_matrix
 from ..domain.models import ConfusionMatrixResult, ReportContent, RunMetadata
 from .chart_renderer import (
     render_area_comparison_chart,
@@ -102,6 +103,8 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     ]
     if metadata.qgis_version:
         meta_lines.append(f"<b>QGIS:</b> {metadata.qgis_version}")
+    if content.project_name:
+        meta_lines.append(f"<b>Project:</b> {content.project_name}")
     for line in meta_lines:
         elements.append(Paragraph(line, body))
     elements.append(Spacer(1, 8 * mm))
@@ -129,6 +132,15 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     elements.append(_build_confusion_table(result, styles))
     elements.append(Spacer(1, 6 * mm))
 
+    # ── Table B: Row-Normalized Confusion Matrix ──
+    elements.append(Paragraph("Table B: Row-Normalized Confusion Matrix (%)", h2))
+    elements.append(Paragraph(
+        "Each cell shows the percentage of reference samples in that row "
+        "classified into each column class.", body_small))
+    elements.append(Spacer(1, 2 * mm))
+    elements.append(_build_normalized_confusion_table(result, styles))
+    elements.append(Spacer(1, 6 * mm))
+
     # ── 3. Accuracy Metrics ──
     elements.append(Paragraph("3. Accuracy Metrics", h1))
     elements.append(_build_summary_table(result, styles))
@@ -137,6 +149,10 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     elements.append(Paragraph("3.1 Per-Class Metrics", h2))
     elements.append(_build_per_class_table(result, styles))
     elements.append(Spacer(1, 6 * mm))
+
+    # ── Interpretation Notes (conditional) ──
+    interp_notes = _build_interpretation_notes(content, styles)
+    elements.extend(interp_notes)
 
     # ── 4. Area-Weighted Results ──
     if result.area_weighted is not None:
@@ -181,9 +197,15 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
         elements.append(Paragraph(ref, body_small))
         elements.append(Spacer(1, 2 * mm))
 
-    # ── 8. Provenance ──
+    # ── 8. ISO 19157 Quality Element Mapping ──
     elements.append(Spacer(1, 4 * mm))
-    elements.append(Paragraph("8. Provenance", h1))
+    elements.append(Paragraph("8. ISO 19157 Quality Element Mapping", h1))
+    elements.append(_build_iso19157_table(styles))
+    elements.append(Spacer(1, 4 * mm))
+
+    # ── 9. Provenance ──
+    elements.append(Spacer(1, 4 * mm))
+    elements.append(Paragraph("9. Provenance", h1))
     prov_lines = [
         f"<b>Timestamp:</b> {metadata.timestamp}",
         f"<b>Plugin version:</b> {metadata.plugin_version}",
@@ -363,6 +385,130 @@ def _build_area_table(result: ConfusionMatrixResult, styles) -> Table:
         ("FONTSIZE", (0, 0), (-1, -1), 8),
         ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
         ("ALIGN", (1, 0), (-1, -1), "CENTER"),
+    ]))
+    return table
+
+
+def _build_normalized_confusion_table(
+    result: ConfusionMatrixResult, styles
+) -> Table:
+    """Build row-normalized confusion matrix as a ReportLab Table (%)."""
+    labels = [result.class_names.get(l, str(l)) for l in result.class_labels]
+    k = len(labels)
+    norm = normalize_confusion_matrix(result.matrix, axis=1)
+
+    header = ["Ref \\ Cls"] + labels + ["Row Total"]
+    data = [header]
+
+    for i in range(k):
+        row = [labels[i]]
+        for j in range(k):
+            row.append(f"{norm[i, j]:.1f}%")
+        row.append("100%")
+        data.append(row)
+
+    table = Table(data)
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.8, 0.8, 0.8)),
+        ("BACKGROUND", (0, 0), (0, -1), colors.Color(0.9, 0.9, 0.9)),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+        ("FONTSIZE", (0, 0), (-1, -1), 8),
+        ("ALIGN", (1, 1), (-1, -1), "CENTER"),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+    ]))
+
+    # Highlight diagonal
+    for i in range(k):
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (i + 1, i + 1), (i + 1, i + 1),
+             colors.Color(0.85, 0.95, 0.85)),
+        ]))
+
+    return table
+
+
+def _build_interpretation_notes(content: ReportContent, styles) -> list:
+    """Build conditional interpretation warning notes.
+
+    Returns a list of Flowable elements (empty if no warnings apply).
+    """
+    result = content.result
+    warnings = []
+
+    # Check total sample size
+    if result.n_samples < 50:
+        warnings.append(
+            f"\u26a0 Small total sample size (n={result.n_samples}). "
+            f"Results may be unreliable with fewer than 50 samples."
+        )
+
+    # Check per-class row totals
+    row_totals = result.matrix.sum(axis=1)
+    for i, label in enumerate(result.class_labels):
+        if row_totals[i] < 25:
+            name = result.class_names.get(label, str(label))
+            warnings.append(
+                f"\u26a0 Class '{name}' has only {int(row_totals[i])} "
+                f"reference samples (< 25). Per-class metrics may be unstable."
+            )
+
+    # Include forwarded validation warnings
+    for w in content.validation_warnings:
+        warnings.append(f"\u26a0 {w}")
+
+    if not warnings:
+        return []
+
+    warn_style = ParagraphStyle(
+        "InterpWarning",
+        parent=styles["BodyText"],
+        fontSize=9,
+        textColor=colors.Color(0.4, 0.25, 0.0),
+    )
+
+    elements = []
+    elements.append(Spacer(1, 4 * mm))
+    elements.append(Paragraph("Interpretation Notes", styles["Heading2"]))
+    for w in warnings:
+        elements.append(Paragraph(w, warn_style))
+        elements.append(Spacer(1, 1 * mm))
+    elements.append(Spacer(1, 4 * mm))
+
+    return elements
+
+
+def _build_iso19157_table(styles) -> Table:
+    """Build ISO 19157 quality element mapping table."""
+    data = [
+        ["GeoAccuRate Metric", "ISO 19157 Quality Element", "Measure"],
+        ["Overall Accuracy (OA)", "Thematic classification correctness",
+         "Misclassification rate"],
+        ["Producer's Accuracy (PA)", "Thematic classification correctness",
+         "Correctly classified reference samples"],
+        ["User's Accuracy (UA)", "Thematic classification correctness",
+         "Correctly classified map samples"],
+        ["Commission Error (1\u2212UA)", "Thematic classification correctness",
+         "Commission error rate"],
+        ["Omission Error (1\u2212PA)", "Thematic classification correctness",
+         "Omission error rate"],
+        ["Quantity Disagreement (QD)", "Thematic classification correctness",
+         "Quantity disagreement"],
+        ["Allocation Disagreement (AD)", "Thematic classification correctness",
+         "Allocation disagreement"],
+        ["Confidence Interval (CI)", "Thematic classification correctness",
+         "Confidence interval (Wilson)"],
+        ["Nodata exclusion", "Completeness \u2014 omission",
+         "Missing item"],
+    ]
+
+    table = Table(data, colWidths=[5 * cm, 6 * cm, 5 * cm])
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.Color(0.8, 0.8, 0.8)),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+        ("FONTSIZE", (0, 0), (-1, -1), 7),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
     ]))
     return table
 

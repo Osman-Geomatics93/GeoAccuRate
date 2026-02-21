@@ -18,7 +18,7 @@ from qgis.PyQt.QtWidgets import (
     QWidget,
 )
 from qgis.gui import QgsFieldComboBox, QgsMapLayerComboBox
-from qgis.core import Qgis, QgsApplication, QgsMapLayerProxyModel
+from qgis.core import Qgis, QgsApplication, QgsMapLayerProxyModel, QgsProject
 
 # Cross-version layer filter compatibility (3.34 vs 3.44+)
 try:
@@ -137,6 +137,16 @@ class AccuracyPanel(QWidget):
         self.btn_view_details.setEnabled(False)
         btn_row.addWidget(self.btn_view_details)
         results_layout.addLayout(btn_row)
+
+        # Persistent warnings label
+        self.warnings_label = QLabel()
+        self.warnings_label.setWordWrap(True)
+        self.warnings_label.setStyleSheet(
+            "QLabel { background-color: #FFF3CD; color: #664D03; "
+            "border: 1px solid #FFECB5; border-radius: 4px; padding: 6px; }"
+        )
+        self.warnings_label.setVisible(False)
+        results_layout.addWidget(self.warnings_label)
 
         layout.addWidget(self.results_group)
 
@@ -259,6 +269,11 @@ class AccuracyPanel(QWidget):
         # --- Disable UI, launch task ---
         self.btn_run.setEnabled(False)
         self.btn_run.setText("Running...")
+        self.btn_view_matrix.setEnabled(False)
+        self.btn_view_details.setEnabled(False)
+        self.btn_report.setEnabled(False)
+        self.results_group.setVisible(False)
+        self.warnings_label.setVisible(False)
 
         from ..tasks.accuracy_task import AccuracyTask
 
@@ -286,11 +301,17 @@ class AccuracyPanel(QWidget):
 
             # Show validation warnings
             if task.validation and task.validation.has_warnings:
+                bullets = []
                 for w in task.validation.warnings:
                     self.iface.messageBar().pushMessage(
                         "GeoAccuRate", w.message,
                         level=Qgis.Warning, duration=8,
                     )
+                    bullets.append(f"\u2022 {w.message}")
+                self.warnings_label.setText("\n".join(bullets))
+                self.warnings_label.setVisible(True)
+            else:
+                self.warnings_label.setVisible(False)
 
             self.iface.messageBar().pushMessage(
                 "GeoAccuRate",
@@ -347,14 +368,40 @@ class AccuracyPanel(QWidget):
         if not path.lower().endswith(".pdf"):
             path += ".pdf"
 
+        from pathlib import Path
+
         from ..domain.models import ReportContent
         from ..tasks.report_task import ReportTask
+
+        # Auto-fill metadata from current context
+        classified_layer = self.cmb_classified.currentLayer()
+        layer_name = classified_layer.name() if classified_layer else "Unknown"
+        title = f"{layer_name} \u2014 Accuracy Assessment"
+
+        try:
+            author = QgsApplication.instance().userProfileManager().userProfile().name()
+        except Exception:
+            author = ""
+
+        project = QgsProject.instance()
+        project_name = project.title()
+        if not project_name:
+            proj_path = project.fileName()
+            project_name = Path(proj_path).stem if proj_path else ""
+
+        validation_warnings = ()
+        if self._last_validation and self._last_validation.has_warnings:
+            validation_warnings = tuple(
+                w.message for w in self._last_validation.warnings
+            )
 
         content = ReportContent(
             metadata=self._last_metadata,
             result=self._last_result,
-            title="Accuracy Assessment Report",
-            author="",
+            title=title,
+            author=author,
+            validation_warnings=validation_warnings,
+            project_name=project_name,
         )
 
         task = ReportTask(content, path)
@@ -395,6 +442,8 @@ class AccuracyPanel(QWidget):
         """Populate the results section from a ConfusionMatrixResult."""
         self._last_result = result
         self.results_group.setVisible(True)
+        self.warnings_label.setText("")
+        self.warnings_label.setVisible(False)
 
         ci_text = ""
         if result.overall_accuracy_ci:

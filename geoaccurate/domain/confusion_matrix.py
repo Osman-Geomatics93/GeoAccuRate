@@ -143,3 +143,21 @@ def compute_metrics(
         "precision_per_class": precision,
         "recall_per_class": recall,
     }
+
+
+def normalize_confusion_matrix(matrix: np.ndarray, axis: int = 1) -> np.ndarray:
+    """Normalize a confusion matrix to percentages along an axis.
+
+    Args:
+        matrix: k x k confusion matrix (integer or float).
+        axis: Normalization axis. 1 = row-normalize (default),
+              0 = column-normalize.
+
+    Returns:
+        k x k float array where values sum to 100.0 along the given axis.
+        Zero-sum rows/columns produce all zeros (no NaN/Inf).
+    """
+    m = matrix.astype(np.float64)
+    totals = m.sum(axis=axis, keepdims=True)
+    safe_totals = np.where(totals == 0, 1.0, totals)
+    return np.where(totals == 0, 0.0, m / safe_totals * 100.0)

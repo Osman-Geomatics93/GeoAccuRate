@@ -132,3 +132,5 @@ class ReportContent:
     result: ConfusionMatrixResult
     title: str
     author: str
+    validation_warnings: Tuple[str, ...] = ()
+    project_name: str = ""
