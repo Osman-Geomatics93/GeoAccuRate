@@ -95,9 +95,10 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     elements.append(Paragraph("GeoAccuRate \u2014 Accuracy Assessment Report", title_style))
     elements.append(Spacer(1, 6 * mm))
 
+    author_display = content.author if content.author else "Not specified"
     meta_lines = [
         f"<b>Title:</b> {content.title}",
-        f"<b>Author:</b> {content.author}",
+        f"<b>Author:</b> {author_display}",
         f"<b>Date:</b> {metadata.timestamp[:10]}",
         f"<b>Plugin:</b> GeoAccuRate v{metadata.plugin_version}",
     ]
@@ -110,6 +111,7 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     elements.append(Spacer(1, 8 * mm))
 
     # ── 1. Input Summary ──
+    elements.append(Spacer(1, 2 * mm))
     elements.append(Paragraph("1. Input Summary", h1))
     # Show layer names (not raw URIs which can be unreadable for memory layers)
     classified_display = metadata.classified_layer_name or metadata.classified_layer_path
@@ -128,6 +130,7 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     elements.append(Spacer(1, 6 * mm))
 
     # ── 2. Confusion Matrix ──
+    elements.append(Spacer(1, 2 * mm))
     elements.append(Paragraph("2. Confusion Matrix", h1))
     elements.append(_build_confusion_table(result, styles))
     elements.append(Spacer(1, 6 * mm))
@@ -144,6 +147,10 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
     # ── 3. Accuracy Metrics ──
     elements.append(Paragraph("3. Accuracy Metrics", h1))
     elements.append(_build_summary_table(result, styles))
+    footnote = ParagraphStyle("Footnote", parent=body_small, fontSize=7,
+                              textColor=colors.Color(0.4, 0.4, 0.4))
+    elements.append(Paragraph(
+        "Confidence intervals constrained to logical bounds.", footnote))
     elements.append(Spacer(1, 4 * mm))
 
     elements.append(Paragraph("3.1 Per-Class Metrics", h2))
@@ -161,6 +168,7 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
         elements.append(Spacer(1, 6 * mm))
 
     # ── 5. Figures ──
+    elements.append(Spacer(1, 2 * mm))
     elements.append(Paragraph("5. Figures", h1))
 
     heatmap = render_confusion_matrix_heatmap(result)
@@ -190,7 +198,7 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
         elements.append(Spacer(1, 2 * mm))
 
     # ── 7. References ──
-    elements.append(Spacer(1, 4 * mm))
+    elements.append(Spacer(1, 6 * mm))
     elements.append(Paragraph("7. References", h1))
     refs = generate_references()
     for ref in refs.split("\n\n"):
@@ -198,13 +206,20 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
         elements.append(Spacer(1, 2 * mm))
 
     # ── 8. ISO 19157 Quality Element Mapping ──
-    elements.append(Spacer(1, 4 * mm))
+    elements.append(Spacer(1, 6 * mm))
     elements.append(Paragraph("8. ISO 19157 Quality Element Mapping", h1))
     elements.append(_build_iso19157_table(styles))
+    iso_disclaimer = ParagraphStyle("ISODisclaimer", parent=body_small, fontSize=7,
+                                    textColor=colors.Color(0.4, 0.4, 0.4),
+                                    fontName="Helvetica-Oblique")
+    elements.append(Spacer(1, 2 * mm))
+    elements.append(Paragraph(
+        "This mapping is informational and does not constitute "
+        "formal ISO certification.", iso_disclaimer))
     elements.append(Spacer(1, 4 * mm))
 
     # ── 9. Provenance ──
-    elements.append(Spacer(1, 4 * mm))
+    elements.append(Spacer(1, 6 * mm))
     elements.append(Paragraph("9. Provenance", h1))
     prov_lines = [
         f"<b>Timestamp:</b> {metadata.timestamp}",
@@ -275,6 +290,7 @@ def _build_summary_table(result: ConfusionMatrixResult, styles) -> Table:
 
     oa = result.overall_accuracy
     oa_lo, oa_hi = result.overall_accuracy_ci
+    oa_lo, oa_hi = max(0.0, oa_lo), min(1.0, oa_hi)
     data.append(["Overall Accuracy", f"{oa:.1%}", f"{oa_lo:.1%} \u2013 {oa_hi:.1%}"])
 
     data.append(["Quantity Disagreement", f"{result.quantity_disagreement:.4f}", "\u2014"])
@@ -329,6 +345,7 @@ def _build_per_class_table(result: ConfusionMatrixResult, styles) -> Table:
             lo, hi = ci
             if math.isnan(lo):
                 return "\u2014"
+            lo, hi = max(0.0, lo), min(1.0, hi)
             return f"{lo:.1%}\u2013{hi:.1%}"
 
         data.append([name, fmt(pa), fmt_ci(pa_ci), fmt(ua), fmt_ci(ua_ci), fmt(f1)])
@@ -350,6 +367,8 @@ def _build_area_table(result: ConfusionMatrixResult, styles) -> Table:
     if aw is None:
         return Table([["Area-weighted analysis not available"]])
 
+    total_mapped = sum(aw.mapped_area_ha.get(l, 0) for l in result.class_labels)
+
     data = [["Class", "Mapped (ha)", "Estimated (ha)", "Est. CI (ha)", "PA (weighted)", "UA (weighted)"]]
 
     for label in result.class_labels:
@@ -366,9 +385,9 @@ def _build_area_table(result: ConfusionMatrixResult, styles) -> Table:
             v = max(0.0, min(1.0, v))
             return f"{v:.1%}"
 
-        # Clamp area CI lower bound to 0 (area can't be negative)
+        # Clamp area CI to logical bounds [0, total_mapped]
         ci_lo = max(0, ci[0])
-        ci_hi = ci[1]
+        ci_hi = min(total_mapped, ci[1]) if total_mapped > 0 else ci[1]
         data.append([
             name,
             f"{mapped:,.0f}",
@@ -431,49 +450,71 @@ def _build_normalized_confusion_table(
 def _build_interpretation_notes(content: ReportContent, styles) -> list:
     """Build conditional interpretation warning notes.
 
+    Deduplicates per-class warnings from the validator and replaces raw
+    class values with human-readable names where available.
+
     Returns a list of Flowable elements (empty if no warnings apply).
     """
+    import re
+
     result = content.result
     warnings = []
+    seen = set()
 
-    # Check total sample size
+    # Total sample size (unique to PDF builder, not in validator)
     if result.n_samples < 50:
         warnings.append(
-            f"\u26a0 Small total sample size (n={result.n_samples}). "
+            f"Small total sample size (n={result.n_samples}). "
             f"Results may be unreliable with fewer than 50 samples."
         )
 
-    # Check per-class row totals
-    row_totals = result.matrix.sum(axis=1)
-    for i, label in enumerate(result.class_labels):
-        if row_totals[i] < 25:
-            name = result.class_names.get(label, str(label))
-            warnings.append(
-                f"\u26a0 Class '{name}' has only {int(row_totals[i])} "
-                f"reference samples (< 25). Per-class metrics may be unstable."
-            )
-
-    # Include forwarded validation warnings
+    # Forward validator warnings, deduplicating and enriching class names
+    _per_class_re = re.compile(
+        r"^Class (\d+) has only (\d+) reference samples"
+    )
     for w in content.validation_warnings:
-        warnings.append(f"\u26a0 {w}")
+        m = _per_class_re.match(w)
+        if m:
+            cls_val = int(m.group(1))
+            count = m.group(2)
+            name = result.class_names.get(cls_val, str(cls_val))
+            canonical = (
+                f"Class '{name}' has only {count} reference samples "
+                f"(minimum recommended: 25)."
+            )
+            if canonical not in seen:
+                seen.add(canonical)
+                warnings.append(canonical)
+        else:
+            if w not in seen:
+                seen.add(w)
+                warnings.append(w)
 
     if not warnings:
         return []
 
+    heading_style = ParagraphStyle(
+        "InterpHeading",
+        parent=styles["Heading2"],
+        fontName="Helvetica-BoldOblique",
+    )
     warn_style = ParagraphStyle(
         "InterpWarning",
         parent=styles["BodyText"],
         fontSize=9,
         textColor=colors.Color(0.4, 0.25, 0.0),
+        backColor=colors.Color(0.96, 0.96, 0.96),
+        borderPadding=4,
+        spaceBefore=2,
+        spaceAfter=2,
     )
 
-    elements = []
-    elements.append(Spacer(1, 4 * mm))
-    elements.append(Paragraph("Interpretation Notes", styles["Heading2"]))
+    elements = [Spacer(1, 6 * mm)]
+    elements.append(Paragraph("Interpretation Notes", heading_style))
+    elements.append(Spacer(1, 2 * mm))
     for w in warnings:
-        elements.append(Paragraph(w, warn_style))
-        elements.append(Spacer(1, 1 * mm))
-    elements.append(Spacer(1, 4 * mm))
+        elements.append(Paragraph(f"\u2022 {w}", warn_style))
+    elements.append(Spacer(1, 6 * mm))
 
     return elements
 
