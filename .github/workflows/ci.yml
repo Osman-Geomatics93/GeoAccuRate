@@ -1,0 +1,65 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  # Fast: domain tests (no QGIS, no Docker)
+  domain-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install numpy scipy pytest
+      - run: pytest geoaccurate/test/ -k "not integration" -v --tb=short
+
+  # Slower: integration tests (QGIS Docker)
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: domain-tests
+    strategy:
+      matrix:
+        qgis: ['3.34', '3.40', '3.44']
+    container:
+      image: qgis/qgis:release-${{ matrix.qgis }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip3 install pytest pytest-qgis
+      - run: xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest geoaccurate/test/ -v --tb=short
+
+  # Linting
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install ruff
+      - run: ruff check geoaccurate/
+
+  # Package validation
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 -c "
+          import configparser
+          c = configparser.ConfigParser()
+          c.read('geoaccurate/metadata.txt')
+          assert c.has_section('general'), 'Missing [general] section'
+          required = ['name', 'version', 'qgisMinimumVersion', 'description',
+                      'about', 'author', 'email', 'repository', 'tracker']
+          for field in required:
+              assert c.has_option('general', field), f'Missing: {field}'
+          print('metadata.txt: OK')
+          "
+      - run: |
+          python3 -c "
+          import ast
+          tree = ast.parse(open('geoaccurate/__init__.py').read())
+          funcs = [n.name for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
+          assert 'classFactory' in funcs, 'classFactory not found in __init__.py'
+          print('__init__.py: OK')
+          "

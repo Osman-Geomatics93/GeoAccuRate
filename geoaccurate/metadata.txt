@@ -1,0 +1,26 @@
+[general]
+name=GeoAccuRate
+qgisMinimumVersion=3.34
+qgisMaximumVersion=3.99
+description=Accuracy assessment done right — Olofsson, Pontius, and publication-ready reports in one click.
+about=GeoAccuRate provides rigorous accuracy assessment for classified maps inside QGIS.
+    It implements the area-weighted estimation method of Olofsson et al. (2014), Pontius
+    quantity and allocation disagreement metrics, Wilson confidence intervals, and
+    automated stratified random sampling with sample size optimization. Generates
+    publication-ready PDF reports with confusion matrices, per-class metrics, and
+    auto-generated methods text with citations. Designed for remote sensing researchers
+    who need defensible accuracy assessment without leaving QGIS.
+version=1.0.0
+author=GeoAccuRate Team
+email=geoaccurate@example.com
+tracker=https://github.com/geoaccurate/geoaccurate-qgis/issues
+repository=https://github.com/geoaccurate/geoaccurate-qgis
+homepage=https://github.com/geoaccurate/geoaccurate-qgis
+changelog=1.0.0 - First stable release: stratified sampling, confusion matrix,
+    Olofsson area-weighted estimation, Pontius metrics, Wilson CIs, PDF reports
+tags=accuracy,validation,confusion matrix,remote sensing,land cover,quality,Olofsson,Pontius
+category=Raster
+icon=resources/icons/plugin_icon.png
+experimental=False
+deprecated=False
+hasProcessingProvider=no

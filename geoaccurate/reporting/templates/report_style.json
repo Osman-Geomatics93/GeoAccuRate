@@ -1,0 +1,21 @@
+{
+  "title_font": "Helvetica-Bold",
+  "body_font": "Helvetica",
+  "heading_font": "Helvetica-Bold",
+  "font_size_title": 18,
+  "font_size_heading": 14,
+  "font_size_body": 10,
+  "font_size_table": 8,
+  "page_size": "A4",
+  "margin_cm": 2.0,
+  "chart_dpi": 300,
+  "chart_style": "seaborn-v0_8-whitegrid",
+  "colors": {
+    "producers_accuracy": "#4C72B0",
+    "users_accuracy": "#DD8452",
+    "mapped_area": "#AEC7E8",
+    "estimated_area": "#FF9896",
+    "table_header": [0.8, 0.8, 0.8],
+    "diagonal_highlight": [0.85, 0.95, 0.85]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "source": "Pontius & Millones 2011, International Journal of Remote Sensing 32(15):4407-4429",
+  "description": "Example for validating Pontius metrics. The identity QD + AD = 1 - OA must always hold.",
+  "test_cases": [
+    {
+      "name": "perfect_agreement",
+      "matrix": [[50, 0, 0], [0, 30, 0], [0, 0, 20]],
+      "expected_qd": 0.0,
+      "expected_ad": 0.0,
+      "expected_oa": 1.0
+    },
+    {
+      "name": "quantity_only",
+      "description": "All errors are quantity differences (diagonal is maximal given marginals)",
+      "matrix": [[30, 0, 0], [0, 30, 0], [20, 0, 20]],
+      "notes": "QD > 0, AD = 0 when all off-diagonal mass is in one direction"
+    },
+    {
+      "name": "three_class_example",
+      "matrix": [[34, 2, 4], [1, 28, 6], [3, 5, 17]],
+      "expected_oa": 0.79,
+      "notes": "QD + AD must equal 0.21"
+    }
+  ],
+  "tolerance": 0.005
+}
