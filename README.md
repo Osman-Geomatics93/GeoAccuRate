@@ -566,7 +566,7 @@ See the [Citation](#citation) section below. GeoAccuRate also auto-generates a m
 
 If you use GeoAccuRate in academic work, please cite:
 
-> Ibrahim, O. (2026). GeoAccuRate: A unified accuracy assessment framework for QGIS. Version 1.1.1. https://github.com/Osman-Geomatics93/GeoAccuRate
+> Ibrahim, O. (2026). GeoAccuRate: A unified accuracy assessment framework for QGIS. Version 1.2.0. https://github.com/Osman-Geomatics93/GeoAccuRate
 
 ### BibTeX
 
@@ -575,7 +575,7 @@ If you use GeoAccuRate in academic work, please cite:
   author    = {Ibrahim, Osman},
   title     = {GeoAccuRate: A Unified Accuracy Assessment Framework for QGIS},
   year      = {2026},
-  version   = {1.1.1},
+  version   = {1.2.0},
   url       = {https://github.com/Osman-Geomatics93/GeoAccuRate},
   license   = {GPL-2.0-or-later}
 }

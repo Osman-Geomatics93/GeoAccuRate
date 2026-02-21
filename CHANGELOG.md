@@ -2,10 +2,17 @@
 
 All notable changes to GeoAccuRate will be documented in this file.
 
-## [1.1.1] - 2026-02-21
+## [1.2.0] - 2026-02-21
 
 ### Added
-- Mathematical Foundation section in README with LaTeX-rendered equations (Cochran, Wilson, Pontius, Olofsson)
+- Validation Philosophy section framing accuracy assessment as statistical inference
+- Reproducibility & Scientific Integrity section with guarantees table and Mermaid diagram
+- Technical Highlights section showcasing architecture decisions
+- Known Limitations section for transparency and trust
+- Coverage badge (92% on statistical core via pytest-cov)
+- Versioning policy (Semantic Versioning) with examples table
+- Vision statement positioning GeoAccuRate as standard open-source framework
+- Mathematical Foundation section with LaTeX equations (Cochran, Wilson, Pontius, Olofsson)
 - Mermaid diagrams: workflow pipeline, sequence diagram, architecture graph, mindmap, gitGraph
 - Collapsible FAQ (6 questions) and installation troubleshooting section
 - Tech stack badges (Python, NumPy, SciPy, Qt, Matplotlib, ReportLab)
@@ -13,8 +20,7 @@ All notable changes to GeoAccuRate will be documented in this file.
 - Contributors section with auto-generated avatars
 - Star History chart with dark/light mode support
 - Table of Contents with back-to-top navigation
-- "Who Should Use" audience table
-- Roadmap status table with icons
+- Cochran (1977) added to references
 
 ### Changed
 - Comparison table now uses emoji icons
