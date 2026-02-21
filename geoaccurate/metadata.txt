@@ -12,13 +12,15 @@ about=GeoAccuRate provides statistically rigorous accuracy assessment for land c
     notes, ISO 19157 quality element mapping, and auto-generated methods text with
     citations. Designed for researchers, students, and agencies requiring reproducible
     and defensible accuracy assessment without leaving QGIS.
-version=1.2.1
+version=1.3.0
 author=Osman Ibrahim
 email=449809@ogr.ktu.edu.tr
 tracker=https://github.com/Osman-Geomatics93/GeoAccuRate/issues
 repository=https://github.com/Osman-Geomatics93/GeoAccuRate
 homepage=https://github.com/Osman-Geomatics93/GeoAccuRate
-changelog=1.2.0 - Research-grade documentation: validation philosophy, reproducibility
+changelog=1.3.0 - Interactive confusion matrix heatmap with colormap selector, Excel export
+    with styled extended matrix, class colors and names from raster palette in strata table
+    1.2.0 - Research-grade documentation: validation philosophy, reproducibility
     guarantees, technical highlights, known limitations, 92%% test coverage,
     LaTeX formulas, Mermaid diagrams, collapsible FAQ
     1.1.0 - Row-normalized confusion matrix, ISO 19157 mapping, interpretation

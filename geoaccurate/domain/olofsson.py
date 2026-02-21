@@ -59,20 +59,15 @@ def compute(
     # Sample counts per mapped class (column totals)
     n_j = matrix.sum(axis=0).astype(float)
 
-    # Check for zero-sample columns
-    for j, label in enumerate(class_labels):
-        if n_j[j] == 0:
-            raise ValueError(
-                f"Class {label} has 0 samples in classified map. "
-                f"Cannot compute area-weighted estimates."
-            )
-
     # -- Estimated area proportions --
     # p_hat[i,j] = W[j] * (n_ij / n_j)
+    # Classes with 0 samples in the classified map contribute 0 to all
+    # estimates (their proportions cannot be estimated from the data).
     p_hat = np.zeros((k, k), dtype=float)
     for i in range(k):
         for j in range(k):
-            p_hat[i, j] = W[class_labels[j]] * (matrix[i, j] / n_j[j])
+            if n_j[j] > 0:
+                p_hat[i, j] = W[class_labels[j]] * (matrix[i, j] / n_j[j])
 
     # -- Estimated area per reference class --
     A_hat = {}

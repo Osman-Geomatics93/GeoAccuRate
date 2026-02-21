@@ -16,6 +16,24 @@ from osgeo import gdal, osr
 gdal.UseExceptions()
 
 
+def _safe_open(path: str):
+    """Open a raster, tolerating OGR probe errors on extensionless files.
+
+    GDAL with UseExceptions() raises spurious errors when OGR drivers
+    attempt (and fail) to probe files that lack a recognised extension
+    (e.g. ENVI binary files).  We temporarily silence exceptions for the
+    Open call only, then re-enable them.
+    """
+    gdal.DontUseExceptions()
+    try:
+        ds = gdal.OpenEx(path, gdal.OF_RASTER | gdal.OF_READONLY)
+    finally:
+        gdal.UseExceptions()
+    if ds is None:
+        raise FileNotFoundError(f"Cannot open raster: {path}")
+    return ds
+
+
 def get_raster_info(raster_path: str) -> dict:
     """Read basic raster metadata without loading pixel data.
 
@@ -23,9 +41,7 @@ def get_raster_info(raster_path: str) -> dict:
         dict with keys: width, height, crs_epsg, pixel_size_x, pixel_size_y,
         extent (xmin, ymin, xmax, ymax), nodata, n_bands, dtype
     """
-    ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
-    if ds is None:
-        raise FileNotFoundError(f"Cannot open raster: {raster_path}")
+    ds = _safe_open(raster_path)
 
     gt = ds.GetGeoTransform()
     band = ds.GetRasterBand(1)
@@ -79,9 +95,7 @@ def extract_values_at_points(
     Returns:
         (values, valid_mask): values array and boolean mask (True=valid).
     """
-    ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
-    if ds is None:
-        raise FileNotFoundError(f"Cannot open raster: {raster_path}")
+    ds = _safe_open(raster_path)
 
     band = ds.GetRasterBand(band_index)
     gt = ds.GetGeoTransform()
@@ -132,9 +146,7 @@ def count_pixels_per_class(
     Returns:
         {class_value: pixel_count}
     """
-    ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
-    if ds is None:
-        raise FileNotFoundError(f"Cannot open raster: {raster_path}")
+    ds = _safe_open(raster_path)
 
     band = ds.GetRasterBand(band_index)
     nodata = band.GetNoDataValue()
@@ -186,9 +198,7 @@ def extract_candidate_pixels(
     Returns:
         Nx2 array of (x, y) coordinates (pixel centers in map CRS).
     """
-    ds = gdal.Open(raster_path, gdal.GA_ReadOnly)
-    if ds is None:
-        raise FileNotFoundError(f"Cannot open raster: {raster_path}")
+    ds = _safe_open(raster_path)
 
     band = ds.GetRasterBand(band_index)
     gt = ds.GetGeoTransform()
