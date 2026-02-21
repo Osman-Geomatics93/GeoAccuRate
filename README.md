@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="geoaccurate/icons/icon.png" width="80">
+  <img src="geoaccurate/icons/icon.png" width="100">
 </p>
 
 <h1 align="center">GeoAccuRate</h1>
@@ -10,18 +10,49 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/QGIS-3.34%2B-brightgreen" alt="QGIS Version">
-  <img src="https://img.shields.io/badge/License-GPLv2%2B-blue" alt="License">
-  <img src="https://img.shields.io/badge/Tests-86%20passing-success" alt="Tests">
-  <a href="https://github.com/Osman-Geomatics93/GeoAccuRate/releases/latest"><img src="https://img.shields.io/github/v/release/Osman-Geomatics93/GeoAccuRate" alt="Release"></a>
-  <a href="https://github.com/Osman-Geomatics93/GeoAccuRate/actions"><img src="https://github.com/Osman-Geomatics93/GeoAccuRate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/Osman-Geomatics93/GeoAccuRate/releases/latest"><img src="https://img.shields.io/github/v/release/Osman-Geomatics93/GeoAccuRate?style=for-the-badge&color=brightgreen" alt="Release"></a>
+  <a href="https://github.com/Osman-Geomatics93/GeoAccuRate/actions"><img src="https://github.com/Osman-Geomatics93/GeoAccuRate/actions/workflows/ci.yml/badge.svg?style=for-the-badge" alt="CI"></a>
+  <img src="https://img.shields.io/badge/QGIS-3.34%2B-3BAA35?style=for-the-badge&logo=qgis&logoColor=white" alt="QGIS">
+  <img src="https://img.shields.io/badge/License-GPLv2%2B-blue?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Tests-86%20passing-success?style=for-the-badge" alt="Tests">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/NumPy-013243?logo=numpy&logoColor=white" alt="NumPy">
+  <img src="https://img.shields.io/badge/SciPy-8CAAE6?logo=scipy&logoColor=white" alt="SciPy">
+  <img src="https://img.shields.io/badge/Qt-41CD52?logo=qt&logoColor=white" alt="Qt">
+  <img src="https://img.shields.io/badge/Matplotlib-11557C?logo=matplotlib&logoColor=white" alt="Matplotlib">
+  <img src="https://img.shields.io/badge/ReportLab-PDF-red" alt="ReportLab">
 </p>
 
 ---
 
-GeoAccuRate replaces ad-hoc spreadsheet-based accuracy assessment with a single, reproducible workflow inside QGIS:
+## Table of Contents
 
-**Sample Design** &rarr; **Confusion Matrix** &rarr; **Publication-Ready Report**
+- [Why Accuracy Assessment Matters](#why-accuracy-assessment-matters)
+- [How It Works](#how-it-works)
+- [Features](#features)
+- [Mathematical Foundation](#mathematical-foundation)
+- [Comparison With Other Tools](#comparison-with-other-tools)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Design Philosophy](#design-philosophy)
+- [Who Should Use GeoAccuRate?](#who-should-use-geoaccurate)
+- [Architecture](#architecture)
+- [Testing](#testing)
+- [Roadmap](#roadmap)
+- [FAQ](#faq)
+- [References](#references)
+- [Citation](#citation)
+- [Contributing](#contributing)
+- [Acknowledgements](#acknowledgements)
+- [Contributors](#contributors)
+- [Star History](#star-history)
+- [License](#license)
+
+---
 
 ## Why Accuracy Assessment Matters
 
@@ -34,6 +65,32 @@ Most GIS workflows stop at Overall Accuracy and Kappa. However, modern remote se
 
 GeoAccuRate brings these best practices directly into QGIS — no spreadsheets, no scripts, no guesswork.
 
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## How It Works
+
+```mermaid
+flowchart LR
+    A["Classified\nRaster"] --> B["Sample\nDesign"]
+    B --> C["Reference\nLabelling"]
+    C --> D["Confusion\nMatrix"]
+    D --> E["Metrics\n+ CI"]
+    E --> F["PDF\nReport"]
+
+    style A fill:#4C72B0,color:#fff,stroke:#333
+    style B fill:#DD8452,color:#fff,stroke:#333
+    style C fill:#55A868,color:#fff,stroke:#333
+    style D fill:#C44E52,color:#fff,stroke:#333
+    style E fill:#8172B3,color:#fff,stroke:#333
+    style F fill:#937860,color:#fff,stroke:#333
+```
+
+GeoAccuRate replaces ad-hoc spreadsheet-based accuracy assessment with a single, reproducible workflow inside QGIS:
+
+**Sample Design** &rarr; **Confusion Matrix** &rarr; **Publication-Ready Report**
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Features
 
 - **Stratified random sampling** with sample size calculator, proportional/equal allocation, and minimum distance constraints
@@ -45,18 +102,92 @@ GeoAccuRate brings these best practices directly into QGIS — no spreadsheets, 
 - **Persistent validation warnings** for small sample sizes and under-sampled classes
 - **Opinionated defaults** — scientifically defensible out of the box
 
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Mathematical Foundation
+
+GeoAccuRate implements peer-reviewed statistical methods. Here are the key equations:
+
+### Sample Size (Cochran 1977)
+
+$$n = \frac{z^2 \cdot p(1-p)}{E^2}$$
+
+Where $z$ is the critical value, $p$ is expected accuracy, and $E$ is margin of error. With finite population correction:
+
+$$n_{adj} = \frac{n}{1 + \frac{n}{N}}$$
+
+### Wilson Confidence Interval
+
+$$\widetilde{p} = \frac{1}{1 + \frac{z^2}{n}} \left( \hat{p} + \frac{z^2}{2n} \pm z \sqrt{\frac{\hat{p}(1-\hat{p})}{n} + \frac{z^2}{4n^2}} \right)$$
+
+Unlike the Wald interval ($\hat{p} \pm z\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$), Wilson intervals never exceed $[0, 1]$ and perform well for extreme proportions and small samples.
+
+### Pontius Disagreement Decomposition
+
+$$\text{Quantity Disagreement} = \sum_{i=1}^{k} \left| p_{i+} - p_{+i} \right| \cdot \frac{1}{2}$$
+
+$$\text{Allocation Disagreement} = 2 \sum_{i=1}^{k} \min(p_{i+} - p_{ii},\; p_{+i} - p_{ii})  \cdot \frac{1}{2}$$
+
+Where $p_{i+}$ and $p_{+i}$ are row and column marginal proportions. These replace Kappa (Pontius & Millones, 2011).
+
+### Olofsson Area-Weighted Estimation
+
+$$\hat{A}_j = A_{\text{total}} \sum_{i=1}^{k} W_i \cdot \frac{n_{ij}}{n_{i\cdot}}$$
+
+$$\text{SE}(\hat{A}_j) = A_{\text{total}} \sqrt{\sum_{i=1}^{k} W_i^2 \cdot \frac{\hat{p}_{ij}(1-\hat{p}_{ij})}{n_{i\cdot} - 1}}$$
+
+Where $W_i = \frac{A_i}{A_{\text{total}}}$ are class area weights (Olofsson et al., 2014).
+
+<details>
+<summary><b>Why Wilson over Wald?</b></summary>
+<br>
+
+The Wald interval is the standard $\hat{p} \pm z \cdot \text{SE}$ formula taught in most textbooks. It has well-known problems:
+
+| Issue | Wald | Wilson |
+|-------|------|--------|
+| CI can go below 0% or above 100% | Yes | No |
+| Collapses to zero width at $p=0$ or $p=1$ | Yes | No |
+| Poor coverage for small $n$ | Yes | No |
+| Symmetric around $\hat{p}$ | Always | Only when appropriate |
+
+GeoAccuRate uses Wilson intervals exclusively and clamps all CIs to logical bounds.
+
+</details>
+
+<details>
+<summary><b>Why Pontius over Kappa?</b></summary>
+<br>
+
+Kappa has been criticized for:
+- Being difficult to interpret (no intuitive meaning)
+- Comparing to a "random" baseline that is itself debatable
+- Conflating two distinct types of error
+
+Pontius & Millones (2011) decompose total disagreement into:
+- **Quantity Disagreement** — wrong amount of each class
+- **Allocation Disagreement** — right amounts but wrong spatial placement
+
+This decomposition is actionable: if QD is high, your classifier is biased; if AD is high, your classifier is spatially confused.
+
+</details>
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Comparison With Other Tools
 
 | Feature | GeoAccuRate | Default QGIS | ENVI | Google Earth Engine |
 |---------|:-----------:|:------------:|:----:|:-------------------:|
-| Wilson confidence intervals | Yes | No | No | No |
-| Pontius QD/AD decomposition | Yes | No | No | No |
-| Olofsson area-weighted estimation | Yes | No | Partial | Manual |
-| ISO 19157 quality mapping | Yes | No | No | No |
-| Auto-generated methods text | Yes | No | No | No |
-| Publication-ready PDF report | Yes | No | No | No |
-| Sample size optimization | Yes | No | No | No |
-| Interpretation warnings | Yes | No | No | No |
+| Wilson confidence intervals | :white_check_mark: | :x: | :x: | :x: |
+| Pontius QD/AD decomposition | :white_check_mark: | :x: | :x: | :x: |
+| Olofsson area-weighted estimation | :white_check_mark: | :x: | :warning: Partial | :wrench: Manual |
+| ISO 19157 quality mapping | :white_check_mark: | :x: | :x: | :x: |
+| Auto-generated methods text | :white_check_mark: | :x: | :x: | :x: |
+| Publication-ready PDF report | :white_check_mark: | :x: | :x: | :x: |
+| Sample size optimization | :white_check_mark: | :x: | :x: | :x: |
+| Interpretation warnings | :white_check_mark: | :x: | :x: | :x: |
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## Screenshots
 
@@ -67,6 +198,8 @@ GeoAccuRate brings these best practices directly into QGIS — no spreadsheets, 
 </p>
 
 > Screenshots coming soon. Run the plugin to see it in action!
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## Installation
 
@@ -88,7 +221,52 @@ GeoAccuRate brings these best practices directly into QGIS — no spreadsheets, 
 - **matplotlib** (bundled with recent QGIS versions)
 - **ReportLab** (for PDF reports): `pip install reportlab` in the QGIS Python console
 
+<details>
+<summary><b>Troubleshooting Installation</b></summary>
+<br>
+
+**ReportLab won't install?**
+Open the QGIS Python Console (`Plugins > Python Console`) and run:
+```python
+import subprocess, sys
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'reportlab'])
+```
+
+**Plugin not showing up?**
+- Ensure the ZIP extracts to a folder named `geoaccurate/` (not nested)
+- Check **Plugins > Manage and Install Plugins > Installed** and enable it
+- Restart QGIS after installation
+
+**matplotlib import error?**
+This can happen on minimal QGIS installations. Install via:
+```python
+import subprocess, sys
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'matplotlib'])
+```
+
+**CRS warning when computing areas?**
+GeoAccuRate requires a projected CRS for accurate area calculations. Reproject your raster to a local projected CRS (e.g., UTM) before running the assessment.
+
+</details>
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Quick Start
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant QGIS
+    participant GeoAccuRate
+
+    User->>QGIS: Load classified raster + reference points
+    User->>GeoAccuRate: Open plugin (toolbar / Raster menu)
+    User->>GeoAccuRate: Select layers + class field
+    User->>GeoAccuRate: Click "Run Assessment"
+    GeoAccuRate-->>User: Confusion matrix + metrics + warnings
+    User->>GeoAccuRate: Click "Generate PDF Report"
+    GeoAccuRate-->>User: Publication-ready PDF
+```
 
 1. Load your classified raster and reference point layer into QGIS
 2. Open GeoAccuRate (toolbar icon or Raster menu)
@@ -97,9 +275,28 @@ GeoAccuRate brings these best practices directly into QGIS — no spreadsheets, 
 5. Click **Run Assessment**
 6. Click **Generate PDF Report**
 
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Design Philosophy
 
 GeoAccuRate is built on three principles:
+
+```mermaid
+mindmap
+  root((GeoAccuRate))
+    Statistical Rigor
+      Wilson over Wald
+      Pontius over Kappa
+      Area-weighted over Naive
+    Reproducibility
+      Provenance JSON
+      Deterministic seeds
+      Methods text with citations
+    Opinionated Defaults
+      No silent resampling
+      CIs clamped to bounds
+      Insufficient sample warnings
+```
 
 1. **Statistical rigor first** — Wilson intervals over Wald, Pontius over Kappa, area-weighted over naive
 2. **Reproducibility by default** — provenance JSON saved with every report, deterministic random seeds
@@ -107,15 +304,72 @@ GeoAccuRate is built on three principles:
 
 The plugin avoids common pitfalls in accuracy assessment by enforcing projected CRS for area calculations, flagging under-sampled classes, and generating methods text with proper citations ready for journal submission.
 
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Who Should Use GeoAccuRate?
 
-- MSc and PhD students conducting land cover validation
-- Remote sensing researchers publishing accuracy assessments
-- Government land cover and land use mapping programs
-- NGOs and environmental monitoring agencies
-- Urban planners and agricultural analysts
+| Audience | Use Case |
+|----------|----------|
+| MSc / PhD students | Land cover validation for thesis |
+| Remote sensing researchers | Publishing accuracy assessments |
+| Government agencies | National land cover / land use mapping |
+| NGOs | Environmental monitoring & reporting |
+| Urban planners | Land use change analysis |
+| Agricultural analysts | Crop classification validation |
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## Architecture
+
+```mermaid
+graph TD
+    subgraph GUI["gui/ — Qt Widgets"]
+        A[DockWidget] --> B[AccuracyPanel]
+        A --> C[SamplePanel]
+        B --> D[ResultsDialog]
+    end
+
+    subgraph TASKS["tasks/ — Background Execution"]
+        E[AccuracyTask]
+        F[SamplingTask]
+        G[ReportTask]
+    end
+
+    subgraph CORE["core/ — Geospatial I/O"]
+        H[AccuracyWorkflow]
+        I[SamplingWorkflow]
+        J[InputValidator]
+        K[RasterReader]
+    end
+
+    subgraph DOMAIN["domain/ — Pure Math"]
+        L[ConfusionMatrix]
+        M[Olofsson]
+        N[Pontius]
+        O[Wilson CI]
+        P[SampleSize]
+    end
+
+    subgraph REPORT["reporting/ — Output"]
+        Q[PDFBuilder]
+        R[ChartRenderer]
+        S[MethodsText]
+    end
+
+    GUI --> TASKS
+    TASKS --> CORE
+    CORE --> DOMAIN
+    TASKS --> REPORT
+    REPORT --> DOMAIN
+
+    style DOMAIN fill:#4C72B0,color:#fff
+    style CORE fill:#55A868,color:#fff
+    style GUI fill:#DD8452,color:#fff
+    style TASKS fill:#8172B3,color:#fff
+    style REPORT fill:#C44E52,color:#fff
+```
+
+The `domain/` layer is independently testable with plain pytest — no QGIS required.
 
 ```
 geoaccurate/
@@ -126,7 +380,7 @@ geoaccurate/
 └── reporting/  # PDF generation, charts, methods text
 ```
 
-The `domain/` layer is independently testable with plain pytest — no QGIS required.
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## Testing
 
@@ -140,22 +394,83 @@ pytest geoaccurate/test/ -v
 
 86 unit tests covering confusion matrix, normalization, Pontius, Olofsson, Wilson CI, Kappa, sampling, and edge cases.
 
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Roadmap
 
-Planned features for future versions:
+| Status | Feature |
+|:------:|---------|
+| :construction: | Change detection accuracy module |
+| :construction: | Continuous raster validation (RMSE, MAE, NSE) |
+| :bulb: | Multi-classifier comparison dashboard |
+| :bulb: | Batch processing mode for multiple classifications |
+| :bulb: | Automated LaTeX/Word export of methods text |
 
-- Change detection accuracy module
-- Continuous raster validation (RMSE, MAE, NSE)
-- Multi-classifier comparison dashboard
-- Batch processing mode for multiple classifications
-- Automated LaTeX/Word export of methods text
+:white_check_mark: = Done &nbsp; :construction: = Planned &nbsp; :bulb: = Under consideration
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## FAQ
+
+<details>
+<summary><b>Why does GeoAccuRate use Wilson intervals instead of the standard formula?</b></summary>
+<br>
+
+The "standard" Wald interval ($\hat{p} \pm 1.96\sqrt{\hat{p}(1-\hat{p})/n}$) can produce confidence intervals below 0% or above 100%, and has poor coverage for small samples or extreme proportions. The Wilson interval is bounded by construction and has better statistical properties. See Agresti & Coull (1998) for a thorough comparison.
+
+</details>
+
+<details>
+<summary><b>Should I report Kappa or Pontius metrics?</b></summary>
+<br>
+
+Pontius metrics (Quantity Disagreement + Allocation Disagreement). Kappa has been widely criticized in the remote sensing literature — it compares to a "chance" baseline that is poorly defined, and it conflates two distinct types of mapping error. GeoAccuRate still computes Kappa for backward compatibility, but the PDF report explicitly recommends Pontius metrics following Pontius & Millones (2011).
+
+</details>
+
+<details>
+<summary><b>What is the minimum recommended sample size?</b></summary>
+<br>
+
+GeoAccuRate warns when total samples are below 50 and when any individual class has fewer than 25 reference points (following Olofsson et al., 2014). Use the built-in sample size calculator to determine the optimal sample size for your desired confidence level and margin of error.
+
+</details>
+
+<details>
+<summary><b>Can I use GeoAccuRate with rasters in geographic (lat/lon) CRS?</b></summary>
+<br>
+
+For the confusion matrix and per-class metrics: yes, CRS doesn't matter. For Olofsson area-weighted estimation: you need a projected CRS, because area calculations in degrees are meaningless. GeoAccuRate will warn you if your raster is in a geographic CRS when area estimation is requested.
+
+</details>
+
+<details>
+<summary><b>What file formats are supported?</b></summary>
+<br>
+
+Any raster format QGIS can read (GeoTIFF, ERDAS IMG, JPEG2000, etc.) and any vector format for reference points (GeoPackage, Shapefile, GeoJSON, etc.). The classified raster must contain integer class values.
+
+</details>
+
+<details>
+<summary><b>How do I cite GeoAccuRate in a journal paper?</b></summary>
+<br>
+
+See the [Citation](#citation) section below. GeoAccuRate also auto-generates a methods paragraph with proper citations that you can paste directly into your manuscript.
+
+</details>
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## References
 
+- Agresti, A. and Coull, B.A. (1998). Approximate is better than "exact" for interval estimation of binomial proportions. *The American Statistician*, 52(2), 119-126. [doi:10.1080/00031305.1998.10480550](https://doi.org/10.1080/00031305.1998.10480550)
 - Congalton, R.G. and Green, K. (2019). *Assessing the Accuracy of Remotely Sensed Data*, 3rd ed. CRC Press.
 - Olofsson, P. et al. (2014). Good practices for estimating area and assessing accuracy of land use change. *Remote Sensing of Environment*, 148, 42-57. [doi:10.1016/j.rse.2014.02.015](https://doi.org/10.1016/j.rse.2014.02.015)
 - Pontius, R.G. Jr. and Millones, M. (2011). Death to Kappa. *International Journal of Remote Sensing*, 32(15), 4407-4429. [doi:10.1080/01431161.2011.552923](https://doi.org/10.1080/01431161.2011.552923)
 - ISO (2013). ISO 19157:2013 Geographic information — Data quality. International Organization for Standardization.
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## Citation
 
@@ -176,16 +491,75 @@ If you use GeoAccuRate in academic work, please cite:
 }
 ```
 
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
 ## Contributing
 
-Contributions are welcome!
+Contributions are welcome! Here's how to get started:
 
+```mermaid
+gitGraph
+    commit id: "fork repo"
+    branch feature
+    commit id: "make changes"
+    commit id: "add tests"
+    commit id: "run pytest"
+    checkout main
+    merge feature id: "open PR"
+```
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/my-improvement`)
+3. Make your changes and add tests
+4. Ensure tests pass: `pytest geoaccurate/test/ -k "not integration" -v`
+5. Open a [Pull Request](https://github.com/Osman-Geomatics93/GeoAccuRate/pulls)
+
+You can also:
 - Open an [issue](https://github.com/Osman-Geomatics93/GeoAccuRate/issues) for bug reports or feature requests
-- Submit pull requests for improvements
 - Help improve documentation or translations
 
-Please ensure tests pass before submitting: `pytest geoaccurate/test/ -k "not integration" -v`
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Acknowledgements
+
+GeoAccuRate stands on the shoulders of foundational work in accuracy assessment:
+
+- **Pontius, R.G. Jr.** and **Millones, M.** — for the Quantity/Allocation Disagreement framework that replaces Kappa
+- **Olofsson, P.**, **Foody, G.M.**, **Herold, M.**, **Stehman, S.V.**, **Woodcock, C.E.**, and **Wulder, M.A.** — for the definitive good practices guide on area estimation and accuracy assessment
+- **Congalton, R.G.** and **Green, K.** — for the foundational textbook on remote sensing accuracy assessment
+- **Wilson, E.B.** — for the confidence interval method that bears his name
+- **Cochran, W.G.** — for the sampling theory underlying the sample size calculator
+
+Built with the amazing open-source ecosystem: [QGIS](https://qgis.org), [NumPy](https://numpy.org), [SciPy](https://scipy.org), [Matplotlib](https://matplotlib.org), [ReportLab](https://www.reportlab.com), and [Qt](https://www.qt.io).
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Contributors
+
+<a href="https://github.com/Osman-Geomatics93/GeoAccuRate/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Osman-Geomatics93/GeoAccuRate" alt="Contributors" />
+</a>
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
+
+## Star History
+
+<a href="https://star-history.com/#Osman-Geomatics93/GeoAccuRate&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Osman-Geomatics93/GeoAccuRate&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Osman-Geomatics93/GeoAccuRate&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Osman-Geomatics93/GeoAccuRate&type=Date" width="600" />
+  </picture>
+</a>
+
+<p align="right"><a href="#table-of-contents">Back to top</a></p>
 
 ## License
 
 GPLv2+ — see [LICENSE](geoaccurate/LICENSE) for details.
+
+---
+
+<p align="center">
+  Made with :heart: for the remote sensing community
+</p>
