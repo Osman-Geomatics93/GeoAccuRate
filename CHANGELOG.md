@@ -2,6 +2,25 @@
 
 All notable changes to GeoAccuRate will be documented in this file.
 
+## [1.1.1] - 2026-02-21
+
+### Added
+- Mathematical Foundation section in README with LaTeX-rendered equations (Cochran, Wilson, Pontius, Olofsson)
+- Mermaid diagrams: workflow pipeline, sequence diagram, architecture graph, mindmap, gitGraph
+- Collapsible FAQ (6 questions) and installation troubleshooting section
+- Tech stack badges (Python, NumPy, SciPy, Qt, Matplotlib, ReportLab)
+- Acknowledgements section crediting foundational researchers
+- Contributors section with auto-generated avatars
+- Star History chart with dark/light mode support
+- Table of Contents with back-to-top navigation
+- "Who Should Use" audience table
+- Roadmap status table with icons
+
+### Changed
+- Comparison table now uses emoji icons
+- Badges upgraded to for-the-badge style
+- Contributing section enhanced with gitGraph diagram
+
 ## [1.1.0] - 2026-02-21
 
 ### Added

@@ -12,13 +12,15 @@ about=GeoAccuRate provides statistically rigorous accuracy assessment for land c
     notes, ISO 19157 quality element mapping, and auto-generated methods text with
     citations. Designed for researchers, students, and agencies requiring reproducible
     and defensible accuracy assessment without leaving QGIS.
-version=1.1.0
+version=1.1.1
 author=Osman Ibrahim
 email=449809@ogr.ktu.edu.tr
 tracker=https://github.com/Osman-Geomatics93/GeoAccuRate/issues
 repository=https://github.com/Osman-Geomatics93/GeoAccuRate
 homepage=https://github.com/Osman-Geomatics93/GeoAccuRate
-changelog=1.1.0 - Row-normalized confusion matrix, ISO 19157 mapping, interpretation
+changelog=1.1.1 - Enhanced README with LaTeX formulas, Mermaid diagrams, FAQ,
+    tech stack badges, acknowledgements, and collapsible sections
+    1.1.0 - Row-normalized confusion matrix, ISO 19157 mapping, interpretation
     notes, CI clamping, persistent warnings widget, report metadata defaults
     1.0.0 - First stable release: stratified sampling, confusion matrix,
     Olofsson area-weighted estimation, Pontius metrics, Wilson CIs, PDF reports
