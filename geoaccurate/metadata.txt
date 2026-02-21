@@ -3,24 +3,28 @@ name=GeoAccuRate
 qgisMinimumVersion=3.34
 qgisMaximumVersion=3.99
 description=Accuracy assessment done right — Olofsson, Pontius, and publication-ready reports in one click.
-about=GeoAccuRate provides rigorous accuracy assessment for classified maps inside QGIS.
-    It implements the area-weighted estimation method of Olofsson et al. (2014), Pontius
-    quantity and allocation disagreement metrics, Wilson confidence intervals, and
-    automated stratified random sampling with sample size optimization. Generates
-    publication-ready PDF reports with confusion matrices, per-class metrics, and
-    auto-generated methods text with citations. Designed for remote sensing researchers
-    who need defensible accuracy assessment without leaving QGIS.
-version=1.0.0
-author=GeoAccuRate Team
-email=geoaccurate@example.com
-tracker=https://github.com/geoaccurate/geoaccurate-qgis/issues
-repository=https://github.com/geoaccurate/geoaccurate-qgis
-homepage=https://github.com/geoaccurate/geoaccurate-qgis
-changelog=1.0.0 - First stable release: stratified sampling, confusion matrix,
+about=GeoAccuRate provides statistically rigorous accuracy assessment for land cover
+    and remote sensing classification validation in QGIS. It implements the area-weighted
+    estimation method of Olofsson et al. (2014), Pontius quantity and allocation
+    disagreement metrics, Wilson confidence intervals, and automated stratified random
+    sampling with sample size optimization. Generates publication-ready PDF reports with
+    confusion matrices (counts and row-normalized), per-class metrics, interpretation
+    notes, ISO 19157 quality element mapping, and auto-generated methods text with
+    citations. Designed for researchers, students, and agencies requiring reproducible
+    and defensible accuracy assessment without leaving QGIS.
+version=1.1.0
+author=Osman Ibrahim
+email=449809@ogr.ktu.edu.tr
+tracker=https://github.com/Osman-Geomatics93/GeoAccuRate/issues
+repository=https://github.com/Osman-Geomatics93/GeoAccuRate
+homepage=https://github.com/Osman-Geomatics93/GeoAccuRate
+changelog=1.1.0 - Row-normalized confusion matrix, ISO 19157 mapping, interpretation
+    notes, CI clamping, persistent warnings widget, report metadata defaults
+    1.0.0 - First stable release: stratified sampling, confusion matrix,
     Olofsson area-weighted estimation, Pontius metrics, Wilson CIs, PDF reports
-tags=accuracy,validation,confusion matrix,remote sensing,land cover,quality,Olofsson,Pontius
+tags=accuracy assessment,remote sensing,confusion matrix,classification,validation,land cover,ISO 19157,Olofsson,Pontius,quality
 category=Raster
-icon=resources/icons/plugin_icon.png
+icon=icons/icon.png
 experimental=False
 deprecated=False
 hasProcessingProvider=no

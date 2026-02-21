@@ -2,7 +2,27 @@
 
 All notable changes to GeoAccuRate will be documented in this file.
 
-## [1.0.0] - Unreleased
+## [1.1.0] - 2026-02-21
+
+### Added
+- Row-normalized confusion matrix table (Table B) in PDF reports
+- ISO 19157 quality element mapping table with informational disclaimer
+- Interpretation notes section with sample-size and per-class warnings
+- Persistent amber warnings widget in the accuracy panel
+- Auto-filled report metadata (title from layer name, author from QGIS profile, project name)
+- Confidence interval clamping to logical bounds with explanatory footnote
+- "Not specified" fallback when author is blank
+- ISO 19157:2013 citation in references section
+- 6 new unit tests for confusion matrix normalization
+
+### Changed
+- Provenance section renumbered to section 9 (after new ISO 19157 section 8)
+- Result buttons (View Matrix, View Per-Class, Generate PDF) now disable during assessment runs
+- Improved vertical spacing between PDF report sections
+- Interpretation Notes styled with italic heading and grey background
+- Warnings deduplicated with class name enrichment and consistent bullet symbols
+
+## [1.0.0] - 2026-02-21
 
 ### Added
 - Stratified random sampling with sample size calculator

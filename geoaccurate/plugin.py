@@ -24,9 +24,7 @@ class GeoAccuRatePlugin:
 
     def initGui(self):
         """Called by QGIS when the plugin is loaded. Sets up GUI elements."""
-        icon_path = os.path.join(
-            self.plugin_dir, "resources", "icons", "plugin_icon.png"
-        )
+        icon_path = os.path.join(self.plugin_dir, "icons", "icon.png")
         icon = QIcon(icon_path) if os.path.exists(icon_path) else QIcon()
 
         self.action = QAction(icon, "GeoAccuRate", self.iface.mainWindow())
