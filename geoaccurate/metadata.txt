@@ -19,7 +19,7 @@ tracker=https://github.com/Osman-Geomatics93/GeoAccuRate/issues
 repository=https://github.com/Osman-Geomatics93/GeoAccuRate
 homepage=https://github.com/Osman-Geomatics93/GeoAccuRate
 changelog=1.2.0 - Research-grade documentation: validation philosophy, reproducibility
-    guarantees, technical highlights, known limitations, 92% test coverage,
+    guarantees, technical highlights, known limitations, 92%% test coverage,
     LaTeX formulas, Mermaid diagrams, collapsible FAQ
     1.1.0 - Row-normalized confusion matrix, ISO 19157 mapping, interpretation
     notes, CI clamping, persistent warnings widget, report metadata defaults
