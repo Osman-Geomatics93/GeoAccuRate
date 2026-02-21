@@ -22,7 +22,7 @@ class TestOlofsson:
             mapped_area_ha=olofsson_golden["mapped_area_ha"],
             class_labels=olofsson_golden["class_labels"],
         )
-        tol = olofsson_golden["tolerance"]
+        olofsson_golden["tolerance"]
 
         # Weights should sum to 1
         assert abs(sum(result.weight_per_class.values()) - 1.0) < 1e-10

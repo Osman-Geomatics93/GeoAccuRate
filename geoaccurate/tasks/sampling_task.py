@@ -5,7 +5,7 @@ Wraps the sampling workflow in a QgsTask for non-blocking execution.
 
 from typing import Dict, Optional
 
-from qgis.core import Qgis, QgsApplication, QgsMessageLog, QgsTask
+from qgis.core import Qgis, QgsMessageLog, QgsTask
 
 from ..core.sampling_workflow import run_sample_generation
 from ..domain.models import SampleSet

@@ -88,7 +88,7 @@ def allocate_proportional(
     if total_pixels == 0:
         raise ValueError("Total pixel count is zero")
 
-    k = len(class_pixel_counts)
+    len(class_pixel_counts)
     labels = sorted(class_pixel_counts.keys())
 
     # Initial proportional allocation
@@ -124,13 +124,13 @@ def allocate_proportional(
     if current_total != total_n and current_total > 0:
         # Only adjust non-bumped classes
         adjustable = [
-            l for l in labels
-            if l not in bumped_classes
-            and allocation[l] > min_per_class
+            lbl for lbl in labels
+            if lbl not in bumped_classes
+            and allocation[lbl] > min_per_class
         ]
         diff = total_n - current_total
         if adjustable and diff != 0:
-            adjustable_total = sum(allocation[l] for l in adjustable)
+            adjustable_total = sum(allocation[lbl] for lbl in adjustable)
             if adjustable_total > 0:
                 for label in adjustable:
                     share = allocation[label] / adjustable_total

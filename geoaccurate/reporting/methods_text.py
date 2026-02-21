@@ -86,9 +86,9 @@ def generate_methods_text(
 
     # Paragraph 4: Per-class note
     p4 = (
-        f"Per-class producer\u2019s and user\u2019s accuracies with "
-        f"95% Wilson confidence intervals are reported in the "
-        f"per-class metrics table."
+        "Per-class producer\u2019s and user\u2019s accuracies with "
+        "95% Wilson confidence intervals are reported in the "
+        "per-class metrics table."
     )
     paragraphs.append(p4)
 

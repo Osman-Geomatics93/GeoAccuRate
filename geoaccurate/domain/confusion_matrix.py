@@ -6,7 +6,7 @@ This follows Congalton & Green (2019).
 No QGIS or Qt imports. Only depends on: numpy.
 """
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 

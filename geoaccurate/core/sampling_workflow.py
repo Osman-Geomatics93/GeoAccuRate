@@ -6,7 +6,7 @@ point generation -> packaging.
 Depends on: core.*, domain.*.
 """
 
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, List, Optional
 
 from ..domain.models import SampleDesign, SampleSet
 from ..domain.sample_size import (
@@ -15,7 +15,6 @@ from ..domain.sample_size import (
     calculate_sample_size,
 )
 from ..domain.sampling import generate_stratified_random
-from .area_calculator import compute_class_areas_ha
 from .raster_reader import count_pixels_per_class, extract_candidate_pixels
 
 

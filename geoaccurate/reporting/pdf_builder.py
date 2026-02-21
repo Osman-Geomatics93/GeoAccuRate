@@ -9,10 +9,7 @@ Depends on: reportlab (optional — graceful fallback if missing).
 import io
 import json
 import math
-import os
-from typing import List, Optional, Tuple
 
-import numpy as np
 
 from ..domain.confusion_matrix import normalize_confusion_matrix
 from ..domain.models import ConfusionMatrixResult, ReportContent, RunMetadata
@@ -27,7 +24,6 @@ from .methods_text import generate_methods_text, generate_references
 _REPORTLAB_AVAILABLE = False
 try:
     from reportlab.lib import colors
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import cm, mm
@@ -241,7 +237,7 @@ def generate_pdf(content: ReportContent, output_path: str) -> str:
 
 def _build_confusion_table(result: ConfusionMatrixResult, styles) -> Table:
     """Build confusion matrix as a ReportLab Table."""
-    labels = [result.class_names.get(l, str(l)) for l in result.class_labels]
+    labels = [result.class_names.get(lbl, str(lbl)) for lbl in result.class_labels]
     k = len(labels)
     matrix = result.matrix
 
@@ -367,7 +363,7 @@ def _build_area_table(result: ConfusionMatrixResult, styles) -> Table:
     if aw is None:
         return Table([["Area-weighted analysis not available"]])
 
-    total_mapped = sum(aw.mapped_area_ha.get(l, 0) for l in result.class_labels)
+    total_mapped = sum(aw.mapped_area_ha.get(lbl, 0) for lbl in result.class_labels)
 
     data = [["Class", "Mapped (ha)", "Estimated (ha)", "Est. CI (ha)", "PA (weighted)", "UA (weighted)"]]
 
@@ -412,7 +408,7 @@ def _build_normalized_confusion_table(
     result: ConfusionMatrixResult, styles
 ) -> Table:
     """Build row-normalized confusion matrix as a ReportLab Table (%)."""
-    labels = [result.class_names.get(l, str(l)) for l in result.class_labels]
+    labels = [result.class_names.get(lbl, str(lbl)) for lbl in result.class_labels]
     k = len(labels)
     norm = normalize_confusion_matrix(result.matrix, axis=1)
 
@@ -560,7 +556,6 @@ def _save_provenance_json(
     output_path: str,
 ):
     """Save provenance JSON alongside the PDF report."""
-    from dataclasses import asdict
 
     prov = {
         "geoaccurate_version": metadata.plugin_version,

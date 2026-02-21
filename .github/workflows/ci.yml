@@ -19,9 +19,9 @@ jobs:
     needs: domain-tests
     strategy:
       matrix:
-        qgis: ['3.34', '3.40', '3.44']
+        qgis: ['ltr', 'stable']
     container:
-      image: qgis/qgis:release-${{ matrix.qgis }}
+      image: qgis/qgis:${{ matrix.qgis }}
     steps:
       - uses: actions/checkout@v4
       - run: pip3 install pytest pytest-qgis

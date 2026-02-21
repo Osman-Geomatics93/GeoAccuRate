@@ -32,7 +32,7 @@ class ConfusionMatrixDialog(QDialog):
     def _build_ui(self, result):
         layout = QVBoxLayout(self)
 
-        labels = [result.class_names.get(l, str(l)) for l in result.class_labels]
+        labels = [result.class_names.get(lbl, str(lbl)) for lbl in result.class_labels]
         k = len(labels)
         matrix = result.matrix
 

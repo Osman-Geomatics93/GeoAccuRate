@@ -7,7 +7,7 @@ Depends on: core.raster_reader.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set
 
 from .raster_reader import get_raster_info
 

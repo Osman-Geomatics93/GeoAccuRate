@@ -5,8 +5,8 @@ This module has ZERO imports from qgis.* or PyQt5.*.
 Only depends on: numpy, typing, dataclasses.
 """
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 

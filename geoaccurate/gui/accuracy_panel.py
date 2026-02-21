@@ -6,7 +6,6 @@ result display, and PDF report generation.
 
 import numpy as np
 
-from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import (
     QCheckBox,
     QFileDialog,

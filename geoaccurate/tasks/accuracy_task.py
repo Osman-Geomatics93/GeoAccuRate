@@ -5,11 +5,11 @@ Wraps the accuracy workflow in a QgsTask for non-blocking execution.
 Depends on: qgis.core, core.accuracy_workflow.
 """
 
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
-from qgis.core import Qgis, QgsApplication, QgsMessageLog, QgsTask
+from qgis.core import Qgis, QgsMessageLog, QgsTask
 
 from ..core.accuracy_workflow import run_accuracy_assessment
 from ..core.input_validator import ValidationResult

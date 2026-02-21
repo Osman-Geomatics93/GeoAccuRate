@@ -6,7 +6,7 @@ pixel counting. Never loads a full raster into memory.
 Depends on: GDAL, numpy.
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import numpy as np
 

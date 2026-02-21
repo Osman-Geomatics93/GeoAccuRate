@@ -1,8 +1,6 @@
 """Tests for confidence interval methods."""
 
-import math
 
-import pytest
 
 from geoaccurate.domain.confidence import (
     kappa_ci,
