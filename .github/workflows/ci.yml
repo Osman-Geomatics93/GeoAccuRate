@@ -24,7 +24,7 @@ jobs:
       image: qgis/qgis:${{ matrix.qgis }}
     steps:
       - uses: actions/checkout@v4
-      - run: pip3 install pytest pytest-qgis
+      - run: pip3 install --break-system-packages pytest pytest-qgis
       - run: xvfb-run -s '+extension GLX -screen 0 1024x768x24' pytest geoaccurate/test/ -v --tb=short
 
   # Linting
